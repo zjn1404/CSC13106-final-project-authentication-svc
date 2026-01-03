@@ -4,10 +4,12 @@ import com.hpt.authentication_svc.dto.request.ChangePasswordRequest;
 import com.hpt.authentication_svc.dto.request.LoginRequest;
 import com.hpt.authentication_svc.dto.request.RefreshTokenRequest;
 import com.hpt.authentication_svc.dto.request.RegisterRequest;
+import com.hpt.authentication_svc.dto.request.UpgradeAccountRequest;
 import com.hpt.authentication_svc.dto.response.AuthResponse;
 import com.hpt.authentication_svc.dto.response.UserProfileResponse;
 import com.hpt.authentication_svc.exception.BadRequestException;
 import com.hpt.authentication_svc.exception.UnauthorizedException;
+import com.hpt.authentication_svc.model.AccountType;
 import com.hpt.authentication_svc.model.BlacklistedToken;
 import com.hpt.authentication_svc.model.User;
 import com.hpt.authentication_svc.repository.BlacklistedTokenRepository;
@@ -113,6 +115,7 @@ public class AuthService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .enabled(user.isEnabled())
+                .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
@@ -140,6 +143,28 @@ public class AuthService {
         return blacklistedTokenRepository.existsByToken(token);
     }
 
+    public UserProfileResponse upgradeAccount(String email, UpgradeAccountRequest request) {
+        User user = userService.findByEmail(email);
+
+        if (user.getAccountType() == AccountType.VIP && request.getAccountType() == AccountType.VIP) {
+            throw new BadRequestException("Account is already VIP");
+        }
+
+        user.setAccountType(request.getAccountType());
+        user = userService.save(user);
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .enabled(user.isEnabled())
+                .accountType(user.getAccountType())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
     private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken) {
         return AuthResponse.builder()
                 .accessToken(accessToken)
@@ -151,6 +176,7 @@ public class AuthService {
                         .email(user.getEmail())
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
+                        .accountType(user.getAccountType())
                         .build())
                 .build();
     }

@@ -1,5 +1,6 @@
 package com.hpt.authentication_svc.dto.response;
 
+import com.hpt.authentication_svc.model.AccountType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class AuthResponse {
         private String email;
         private String firstName;
         private String lastName;
+        private AccountType accountType;
     }
 }
 

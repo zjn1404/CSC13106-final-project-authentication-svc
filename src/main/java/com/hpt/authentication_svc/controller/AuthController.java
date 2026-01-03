@@ -4,6 +4,7 @@ import com.hpt.authentication_svc.dto.request.ChangePasswordRequest;
 import com.hpt.authentication_svc.dto.request.LoginRequest;
 import com.hpt.authentication_svc.dto.request.RefreshTokenRequest;
 import com.hpt.authentication_svc.dto.request.RegisterRequest;
+import com.hpt.authentication_svc.dto.request.UpgradeAccountRequest;
 import com.hpt.authentication_svc.dto.response.ApiResponse;
 import com.hpt.authentication_svc.dto.response.AuthResponse;
 import com.hpt.authentication_svc.dto.response.UserProfileResponse;
@@ -17,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,6 +74,15 @@ public class AuthController {
             authService.logout(token);
         }
         return ResponseEntity.ok(ApiResponse.success("Logged out successfully"));
+    }
+
+    @PutMapping("/upgrade-account")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> upgradeAccount(
+            @Valid @RequestBody UpgradeAccountRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        UserProfileResponse profile = authService.upgradeAccount(email, request);
+        return ResponseEntity.ok(ApiResponse.success("Account upgraded successfully", profile));
     }
 }
 

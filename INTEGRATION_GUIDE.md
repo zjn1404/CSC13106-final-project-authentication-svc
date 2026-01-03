@@ -9,6 +9,12 @@
 | **Access Token Expiration** | 1 hour (3600000ms) |
 | **Refresh Token Expiration** | 24 hours (86400000ms) |
 
+## Account Types
+| Type | Description | Permissions |
+|------|-------------|-------------|
+| **STANDARD** | Default account type | Can view charts |
+| **VIP** | Premium account type | Can view charts + AI model-based analyses |
+
 ## Quick Reference
 | Action | Method | Endpoint | Auth |
 |--------|--------|----------|------|
@@ -18,6 +24,7 @@
 | Get Profile | GET | `/api/v1/auth/me` | ✅ |
 | Change Password | POST | `/api/v1/auth/change-password` | ✅ |
 | Logout | POST | `/api/v1/auth/logout` | ✅ |
+| Upgrade Account | PUT | `/api/v1/auth/upgrade-account` | ✅ |
 
 ## Public Endpoints
 
@@ -49,7 +56,7 @@
     "refreshToken": "eyJhbGciOiJIUzUxMiJ9...",
     "tokenType": "Bearer",
     "expiresIn": 3600000,
-    "user": { "id": "...", "email": "...", "firstName": "...", "lastName": "..." }
+    "user": { "id": "...", "email": "...", "firstName": "...", "lastName": "...", "accountType": "STANDARD" }
   },
   "timestamp": "2025-12-13T10:00:00.000Z"
 }
@@ -66,6 +73,7 @@
   "data": {
     "id": "userId123", "email": "user@example.com",
     "firstName": "John", "lastName": "Doe", "enabled": true,
+    "accountType": "STANDARD",
     "createdAt": "2025-12-13T10:00:00.000Z", "updatedAt": "2025-12-13T10:00:00.000Z"
   }
 }
@@ -81,6 +89,26 @@
 **POST** `/api/v1/auth/logout`
 ```json
 { "success": true, "message": "Logged out successfully" }
+```
+
+### Upgrade Account
+**PUT** `/api/v1/auth/upgrade-account`
+```json
+{ "accountType": "VIP" }
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Account upgraded successfully",
+  "data": {
+    "id": "userId123", "email": "user@example.com",
+    "firstName": "John", "lastName": "Doe", "enabled": true,
+    "accountType": "VIP",
+    "createdAt": "2025-12-13T10:00:00.000Z", "updatedAt": "2025-12-13T10:00:00.000Z"
+  }
+}
 ```
 
 ## Error Responses
@@ -152,6 +180,7 @@ public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 | `X-User-Email` | Authenticated user's email |
 | `X-User-FirstName` | User's first name |
 | `X-User-LastName` | User's last name |
+| `X-User-AccountType` | User's account type (STANDARD or VIP) |
 
 ## Environment Variables
 | Variable | Description |

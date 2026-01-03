@@ -34,6 +34,9 @@ public class User {
     @Builder.Default
     private boolean enabled = true;
 
+    @Builder.Default
+    private AccountType accountType = AccountType.STANDARD;
+
     @CreatedDate
     private Instant createdAt;
 
