@@ -1,52 +1,67 @@
 # Authentication Service Integration Guide
 
 ## Service Configuration
-| Property | Value |
-|----------|-------|
-| **Base URL** | `http://localhost:8081` |
-| **API Prefix** | `/api/v1/auth` |
-| **Token Type** | Bearer JWT |
-| **Access Token Expiration** | 1 hour (3600000ms) |
-| **Refresh Token Expiration** | 24 hours (86400000ms) |
+
+| Property                     | Value                   |
+| ---------------------------- | ----------------------- |
+| **Base URL**                 | `http://localhost:8081` |
+| **API Prefix**               | `/api/v1/auth`          |
+| **Token Type**               | Bearer JWT              |
+| **Access Token Expiration**  | 1 hour (3600000ms)      |
+| **Refresh Token Expiration** | 24 hours (86400000ms)   |
 
 ## Account Types
-| Type | Description | Permissions |
-|------|-------------|-------------|
-| **STANDARD** | Default account type | Can view charts |
-| **VIP** | Premium account type | Can view charts + AI model-based analyses |
+
+| Type         | Description          | Permissions                               |
+| ------------ | -------------------- | ----------------------------------------- |
+| **STANDARD** | Default account type | Can view charts                           |
+| **VIP**      | Premium account type | Can view charts + AI model-based analyses |
 
 ## Quick Reference
-| Action | Method | Endpoint | Auth |
-|--------|--------|----------|------|
-| Register | POST | `/api/v1/auth/register` | ❌ |
-| Login | POST | `/api/v1/auth/login` | ❌ |
-| Refresh Token | POST | `/api/v1/auth/refresh-token` | ❌ |
-| Get Profile | GET | `/api/v1/auth/me` | ✅ |
-| Change Password | POST | `/api/v1/auth/change-password` | ✅ |
-| Logout | POST | `/api/v1/auth/logout` | ✅ |
-| Upgrade Account | PUT | `/api/v1/auth/upgrade-account` | ✅ |
+
+| Action          | Method | Endpoint                       | Auth |
+| --------------- | ------ | ------------------------------ | ---- |
+| Register        | POST   | `/api/v1/auth/register`        | ❌   |
+| Login           | POST   | `/api/v1/auth/login`           | ❌   |
+| Refresh Token   | POST   | `/api/v1/auth/refresh-token`   | ❌   |
+| Get Profile     | GET    | `/api/v1/auth/me`              | ✅   |
+| Change Password | POST   | `/api/v1/auth/change-password` | ✅   |
+| Logout          | POST   | `/api/v1/auth/logout`          | ✅   |
+| Upgrade Account | PUT    | `/api/v1/auth/upgrade-account` | ✅   |
 
 ## Public Endpoints
 
 ### Register User
+
 **POST** `/api/v1/auth/register`
+
 ```json
-{ "email": "user@example.com", "password": "password123", "firstName": "John", "lastName": "Doe" }
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "firstName": "John",
+  "lastName": "Doe"
+}
 ```
 
 ### Login
+
 **POST** `/api/v1/auth/login`
+
 ```json
 { "email": "user@example.com", "password": "password123" }
 ```
 
 ### Refresh Token
+
 **POST** `/api/v1/auth/refresh-token`
+
 ```json
 { "refreshToken": "eyJhbGciOiJIUzUxMiJ9..." }
 ```
 
 ### Auth Response Format (Register/Login/Refresh)
+
 ```json
 {
   "success": true,
@@ -56,74 +71,104 @@
     "refreshToken": "eyJhbGciOiJIUzUxMiJ9...",
     "tokenType": "Bearer",
     "expiresIn": 3600000,
-    "user": { "id": "...", "email": "...", "firstName": "...", "lastName": "...", "accountType": "STANDARD" }
+    "user": {
+      "id": "...",
+      "email": "...",
+      "firstName": "...",
+      "lastName": "...",
+      "accountType": "STANDARD"
+    }
   },
   "timestamp": "2025-12-13T10:00:00.000Z"
 }
 ```
 
 ## Protected Endpoints
+
 > **Header Required:** `Authorization: Bearer <accessToken>`
 
 ### Get Profile
+
 **GET** `/api/v1/auth/me`
+
 ```json
 {
   "success": true,
   "data": {
-    "id": "userId123", "email": "user@example.com",
-    "firstName": "John", "lastName": "Doe", "enabled": true,
+    "id": "userId123",
+    "email": "user@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "enabled": true,
     "accountType": "STANDARD",
-    "createdAt": "2025-12-13T10:00:00.000Z", "updatedAt": "2025-12-13T10:00:00.000Z"
+    "createdAt": "2025-12-13T10:00:00.000Z",
+    "updatedAt": "2025-12-13T10:00:00.000Z"
   }
 }
 ```
 
 ### Change Password
+
 **POST** `/api/v1/auth/change-password`
+
 ```json
-{ "currentPassword": "password123", "newPassword": "newPassword456", "confirmPassword": "newPassword456" }
+{
+  "currentPassword": "password123",
+  "newPassword": "newPassword456",
+  "confirmPassword": "newPassword456"
+}
 ```
 
 ### Logout
+
 **POST** `/api/v1/auth/logout`
+
 ```json
 { "success": true, "message": "Logged out successfully" }
 ```
 
 ### Upgrade Account
+
 **PUT** `/api/v1/auth/upgrade-account`
+
 ```json
 { "accountType": "VIP" }
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
   "message": "Account upgraded successfully",
   "data": {
-    "id": "userId123", "email": "user@example.com",
-    "firstName": "John", "lastName": "Doe", "enabled": true,
+    "id": "userId123",
+    "email": "user@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "enabled": true,
     "accountType": "VIP",
-    "createdAt": "2025-12-13T10:00:00.000Z", "updatedAt": "2025-12-13T10:00:00.000Z"
+    "createdAt": "2025-12-13T10:00:00.000Z",
+    "updatedAt": "2025-12-13T10:00:00.000Z"
   }
 }
 ```
 
 ## Error Responses
-| HTTP Status | Description |
-|-------------|-------------|
-| 400 | Bad Request (validation errors, email exists) |
-| 401 | Unauthorized (invalid credentials, expired token) |
-| 403 | Forbidden (blacklisted token) |
-| 404 | Not Found (user not found) |
+
+| HTTP Status | Description                                       |
+| ----------- | ------------------------------------------------- |
+| 400         | Bad Request (validation errors, email exists)     |
+| 401         | Unauthorized (invalid credentials, expired token) |
+| 403         | Forbidden (blacklisted token)                     |
+| 404         | Not Found (user not found)                        |
 
 ```json
 { "success": false, "message": "Error description", "timestamp": "..." }
 ```
 
 ## JWT Token
+
 - **Algorithm:** HS512
 - **Claims:** `sub` (email), `iat` (issued at), `exp` (expiration)
 - **Validation:** Signature, Expiration, Blacklist check
@@ -131,6 +176,7 @@
 ## API Gateway Integration
 
 ### Route Configuration (Spring Cloud Gateway)
+
 ```yaml
 spring:
   cloud:
@@ -149,6 +195,7 @@ spring:
 ```
 
 ### Token Validation Filter
+
 ```java
 public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
@@ -174,19 +221,20 @@ public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 ```
 
 ### Headers for Downstream Services
-| Header | Description |
-|--------|-------------|
-| `X-User-Id` | Authenticated user's ID |
-| `X-User-Email` | Authenticated user's email |
-| `X-User-FirstName` | User's first name |
-| `X-User-LastName` | User's last name |
+
+| Header               | Description                           |
+| -------------------- | ------------------------------------- |
+| `X-User-Id`          | Authenticated user's ID               |
+| `X-User-Email`       | Authenticated user's email            |
+| `X-User-FirstName`   | User's first name                     |
+| `X-User-LastName`    | User's last name                      |
 | `X-User-AccountType` | User's account type (STANDARD or VIP) |
 
 ## Environment Variables
-| Variable | Description |
-|----------|-------------|
-| `MONGODB_URI` | MongoDB connection string |
-| `JWT_SECRET` | Secret key for JWT signing (Base64) |
-| `JWT_ACCESS_TOKEN_EXPIRATION` | Access token TTL in milliseconds |
-| `JWT_REFRESH_TOKEN_EXPIRATION` | Refresh token TTL in milliseconds |
 
+| Variable                       | Description                         |
+| ------------------------------ | ----------------------------------- |
+| `MONGODB_URI`                  | MongoDB connection string           |
+| `JWT_SECRET`                   | Secret key for JWT signing (Base64) |
+| `JWT_ACCESS_TOKEN_EXPIRATION`  | Access token TTL in milliseconds    |
+| `JWT_REFRESH_TOKEN_EXPIRATION` | Refresh token TTL in milliseconds   |
