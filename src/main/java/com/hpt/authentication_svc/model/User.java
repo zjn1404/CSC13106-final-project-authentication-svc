@@ -37,10 +37,32 @@ public class User {
     @Builder.Default
     private AccountType accountType = AccountType.STANDARD;
 
+    // OAuth provider information
+    @Builder.Default
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
+    private String providerId; // Google user ID when using OAuth
+
+    private String profilePictureUrl; // Profile picture from OAuth provider
+
     @CreatedDate
     private Instant createdAt;
 
     @LastModifiedDate
     private Instant updatedAt;
+
+    /**
+     * Check if user registered via OAuth (Google, etc.)
+     */
+    public boolean isOAuthUser() {
+        return authProvider != null && authProvider != AuthProvider.LOCAL;
+    }
+
+    /**
+     * Check if user has a password set (local registration or linked account)
+     */
+    public boolean hasPassword() {
+        return password != null && !password.isEmpty();
+    }
 }
 

@@ -1,6 +1,7 @@
 package com.hpt.authentication_svc.controller;
 
 import com.hpt.authentication_svc.dto.request.ChangePasswordRequest;
+import com.hpt.authentication_svc.dto.request.GoogleAuthRequest;
 import com.hpt.authentication_svc.dto.request.LoginRequest;
 import com.hpt.authentication_svc.dto.request.RefreshTokenRequest;
 import com.hpt.authentication_svc.dto.request.RegisterRequest;
@@ -42,6 +43,27 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+    }
+
+    /**
+     * Google OAuth 2.0 login endpoint.
+     * Exchanges the authorization code for tokens and authenticates/registers the user.
+     *
+     * Flow:
+     * 1. Frontend redirects user to Google OAuth consent screen
+     * 2. User grants permission, Google redirects back with authorization code
+     * 3. Frontend sends the code to this endpoint
+     * 4. Backend exchanges code for access token, gets user info, and returns JWT tokens
+     *
+     * Handles cases:
+     * - New user: Creates account with Google provider
+     * - Existing Google user: Logs in
+     * - Existing local user with same email: Links Google account
+     */
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<AuthResponse>> loginWithGoogle(@Valid @RequestBody GoogleAuthRequest request) {
+        AuthResponse response = authService.loginWithGoogle(request);
+        return ResponseEntity.ok(ApiResponse.success("Google login successful", response));
     }
 
     @PostMapping("/refresh-token")
