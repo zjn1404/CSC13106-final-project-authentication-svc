@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+// No @CrossOrigin here - Gateway handles CORS centrally
 @RequiredArgsConstructor
 public class AuthController {
 
