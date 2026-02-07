@@ -4,13 +4,21 @@
 FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
+# Copy pom.xml and download dependencies (with retry for network issues)
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+RUN for i in 1 2 3; do \
+      mvn dependency:go-offline -B && break; \
+      echo "Retry $i failed, waiting..."; \
+      sleep 5; \
+    done
 
-# Copy source code and build
+# Copy source code and build (with retry for network issues)
 COPY src ./src
-RUN mvn clean package -DskipTests -B
+RUN for i in 1 2 3; do \
+      mvn clean package -DskipTests -B && break; \
+      echo "Retry $i failed, waiting..."; \
+      sleep 5; \
+    done || (echo "Maven build failed after 3 retries" && exit 1)
 
 # Stage 2: Runtime
 # Using standard JRE instead of Alpine to avoid netty native library issues
